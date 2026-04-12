@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../controllers/session_controller.dart';
 import '../models/user_model.dart';
-import '../services/auth_service.dart';
-import '../services/user_service.dart';
-import 'login_screen.dart';
+import '../navigation/app_routes.dart';
+import '../widgets/dashboard/dashboard_logout_button.dart';
+import '../widgets/dashboard/user_profile_card.dart';
 
 class UserDashboard extends StatefulWidget {
   const UserDashboard({super.key});
@@ -13,8 +14,7 @@ class UserDashboard extends StatefulWidget {
 }
 
 class _UserDashboardState extends State<UserDashboard> {
-  final _authService = AuthService();
-  final _userService = UserService();
+  final _sessionController = SessionController();
 
   bool _isCheckingAccess = true;
   String? _errorMessage;
@@ -27,20 +27,14 @@ class _UserDashboardState extends State<UserDashboard> {
   }
 
   Future<void> _protectRouteAndLoadProfile() async {
-    final currentUser = _authService.currentUser;
-    if (currentUser == null) {
-      _goToLogin();
-      return;
-    }
-
     try {
-      final profile = await _userService.getUserByUid(currentUser.uid);
+      final profile = await _sessionController.loadCurrentUserProfile();
       if (!mounted) {
         return;
       }
 
       if (profile == null) {
-        await _authService.signOut();
+        await _sessionController.signOut();
         _goToLogin();
         return;
       }
@@ -62,7 +56,7 @@ class _UserDashboardState extends State<UserDashboard> {
 
   Future<void> _logout() async {
     try {
-      await _authService.signOut();
+      await _sessionController.signOut();
       if (!mounted) {
         return;
       }
@@ -78,13 +72,7 @@ class _UserDashboardState extends State<UserDashboard> {
   }
 
   void _goToLogin() {
-    if (!mounted) {
-      return;
-    }
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
-      (route) => false,
-    );
+    AppRoutes.goToLogin(context);
   }
 
   @override
@@ -98,11 +86,7 @@ class _UserDashboardState extends State<UserDashboard> {
         appBar: AppBar(
           title: const Text('User Dashboard'),
           actions: [
-            IconButton(
-              onPressed: _logout,
-              icon: const Icon(Icons.logout),
-              tooltip: 'Logout',
-            ),
+            DashboardLogoutButton(onPressed: _logout),
           ],
         ),
         body: Center(child: Text(_errorMessage!)),
@@ -118,11 +102,7 @@ class _UserDashboardState extends State<UserDashboard> {
       appBar: AppBar(
         title: Text(user.name.isNotEmpty ? user.name : user.email),
         actions: [
-          IconButton(
-            onPressed: _logout,
-            icon: const Icon(Icons.logout),
-            tooltip: 'Logout',
-          ),
+          DashboardLogoutButton(onPressed: _logout),
         ],
       ),
       body: Padding(
@@ -130,35 +110,7 @@ class _UserDashboardState extends State<UserDashboard> {
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 560),
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Welcome, ${user.name}!',
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                    const SizedBox(height: 16),
-                    Text('Name: ${user.name}'),
-                    const SizedBox(height: 8),
-                    Text('Email: ${user.email}'),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Text('Role: '),
-                        Chip(
-                          label: Text(user.role),
-                          backgroundColor: Colors.green.shade100,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            child: UserProfileCard(user: user),
           ),
         ),
       ),

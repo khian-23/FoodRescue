@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../screens/admin_dashboard.dart';
-import '../screens/register_screen.dart';
-import '../screens/user_dashboard.dart';
+import '../controllers/login_controller.dart';
+import '../navigation/app_routes.dart';
 import '../services/auth_service.dart';
-import '../services/user_service.dart';
+import '../widgets/auth/auth_error_text.dart';
+import '../widgets/auth/auth_submit_button.dart';
+import '../widgets/auth/email_form_field.dart';
+import '../widgets/auth/password_form_field.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,8 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _authService = AuthService();
-  final _userService = UserService();
+  final _loginController = LoginController();
 
   bool _obscurePassword = true;
   bool _isLoading = false;
@@ -42,33 +43,16 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      final email = _emailController.text.trim();
-      final password = _passwordController.text.trim();
-
-      final credential = await _authService.signIn(email: email, password: password);
-      final firebaseUser = credential.user;
-
-      if (firebaseUser == null) {
-        throw AppAuthException('Unable to sign in right now. Please try again.');
-      }
-
-      final appUser = await _userService.getUserByUid(firebaseUser.uid);
-      if (appUser == null) {
-        throw AppAuthException('Account profile not found. Please contact admin.');
-      }
+      final appUser = await _loginController.login(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
 
       if (!mounted) {
         return;
       }
 
-      final targetScreen = appUser.role == 'admin'
-          ? const AdminDashboard()
-          : const UserDashboard();
-
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => targetScreen),
-        (route) => false,
-      );
+      AppRoutes.goToDashboardForRole(context, appUser);
     } on AppAuthException catch (e) {
       if (!mounted) {
         return;
@@ -93,9 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _goToRegister() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const RegisterScreen()),
-    );
+    AppRoutes.goToRegister(context);
   }
 
   @override
@@ -125,79 +107,30 @@ class _LoginScreenState extends State<LoginScreen> {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 24),
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                        hintText: 'you@example.com',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        final input = value?.trim() ?? '';
-                        if (input.isEmpty) {
-                          return 'Email is required.';
-                        }
-                        final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-                        if (!emailRegex.hasMatch(input)) {
-                          return 'Please enter a valid email address.';
-                        }
-                        return null;
-                      },
-                    ),
+                    EmailFormField(controller: _emailController),
                     const SizedBox(height: 12),
-                    TextFormField(
+                    PasswordFormField(
                       controller: _passwordController,
+                      label: 'Password',
+                      hintText: 'Enter your password',
                       obscureText: _obscurePassword,
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        hintText: 'Enter your password',
-                        border: const OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                          ),
-                        ),
-                      ),
-                      validator: (value) {
-                        if ((value ?? '').trim().isEmpty) {
-                          return 'Password is required.';
-                        }
-                        return null;
+                      onToggle: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
                       },
+                      validator: (_) =>
+                          (_passwordController.text.trim().isEmpty)
+                          ? 'Password is required.'
+                          : null,
                     ),
                     const SizedBox(height: 12),
-                    SizedBox(
-                      height: 24,
-                      child: _errorMessage == null
-                          ? const SizedBox.shrink()
-                          : Text(
-                              _errorMessage!,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.error,
-                              ),
-                            ),
-                    ),
+                    AuthErrorText(message: _errorMessage),
                     const SizedBox(height: 8),
-                    SizedBox(
-                      height: 48,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _handleLogin,
-                        child: _isLoading
-                            ? const SizedBox(
-                                width: 22,
-                                height: 22,
-                                child: CircularProgressIndicator(strokeWidth: 2.5),
-                              )
-                            : const Text('Login'),
-                      ),
+                    AuthSubmitButton(
+                      label: 'Login',
+                      isLoading: _isLoading,
+                      onPressed: _handleLogin,
                     ),
                     const SizedBox(height: 8),
                     TextButton(
