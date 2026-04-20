@@ -43,6 +43,7 @@ class AuthService {
     required String name,
     required String email,
     required String password,
+    required String userType,
   }) async {
     try {
       final credential = await _authClient.createUserWithEmailAndPassword(
@@ -60,6 +61,7 @@ class AuthService {
           name: name,
           email: email,
           role: 'user',
+          userType: userType,
         );
       } catch (_) {
         await user.delete();

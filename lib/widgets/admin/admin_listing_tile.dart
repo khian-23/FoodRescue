@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 
-import '../../models/user_model.dart';
+import '../../models/food_listing_model.dart';
 import '../../theme/app_theme.dart';
 
-class AdminUserTile extends StatelessWidget {
-  const AdminUserTile({
+class AdminListingTile extends StatelessWidget {
+  const AdminListingTile({
     super.key,
-    required this.user,
-    required this.onEdit,
+    required this.listing,
+    required this.onStatusEdit,
     required this.onDelete,
   });
 
-  final UserModel user;
-  final VoidCallback onEdit;
+  final FoodListingModel listing;
+  final VoidCallback onStatusEdit;
   final VoidCallback onDelete;
 
   @override
@@ -26,19 +26,16 @@ class AdminUserTile extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(
-                  radius: 24,
-                  backgroundColor: user.role == 'admin'
-                      ? AppTheme.sand.withValues(alpha: 0.7)
-                      : AppTheme.sage.withValues(alpha: 0.8),
-                  child: Text(
-                    user.name.isNotEmpty
-                        ? user.name.substring(0, 1).toUpperCase()
-                        : 'U',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          color: AppTheme.forest,
-                        ),
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: AppTheme.sage.withValues(alpha: 0.7),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Icon(
+                    Icons.storefront_outlined,
+                    color: AppTheme.forest,
                   ),
                 ),
                 const SizedBox(width: 14),
@@ -47,14 +44,14 @@ class AdminUserTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        user.name,
+                        listing.title,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w800,
                             ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        user.email,
+                        'By ${listing.ownerName}',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: AppTheme.forest.withValues(alpha: 0.72),
                             ),
@@ -63,9 +60,8 @@ class AdminUserTile extends StatelessWidget {
                   ),
                 ),
                 Chip(
-                  label: Text(user.role),
-                  backgroundColor:
-                      user.role == 'admin' ? AppTheme.sand : AppTheme.sage,
+                  label: Text(listing.status),
+                  backgroundColor: _statusColor(listing.status),
                 ),
               ],
             ),
@@ -74,29 +70,52 @@ class AdminUserTile extends StatelessWidget {
               spacing: 10,
               runSpacing: 10,
               children: [
-                _MetaPill(
-                  icon: Icons.group_outlined,
-                  label: 'Type: ${user.userType}',
+                _ListingPill(
+                  icon: Icons.place_outlined,
+                  label: listing.pickupLocation,
                 ),
-                _MetaPill(
-                  icon: Icons.verified_user_outlined,
-                  label: 'UID: ${user.uid}',
+                _ListingPill(
+                  icon: Icons.schedule_outlined,
+                  label: listing.availableUntil,
+                ),
+                _ListingPill(
+                  icon: Icons.inventory_2_outlined,
+                  label: listing.quantity,
                 ),
               ],
             ),
+            if (listing.claimedByName.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: AppTheme.sand.withValues(alpha: 0.42),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Text(
+                  'Claimed by ${listing.claimedByName}',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+              ),
+            ],
             const SizedBox(height: 14),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 OutlinedButton.icon(
-                  onPressed: onEdit,
-                  icon: const Icon(Icons.edit, size: 18),
-                  label: const Text('Edit'),
+                  onPressed: onStatusEdit,
+                  icon: const Icon(Icons.tune, size: 18),
+                  label: const Text('Status'),
                 ),
                 const SizedBox(width: 8),
                 OutlinedButton.icon(
                   onPressed: onDelete,
-                  icon: const Icon(Icons.delete, size: 18),
+                  icon: const Icon(Icons.delete_outline, size: 18),
                   label: const Text('Delete'),
                 ),
               ],
@@ -108,8 +127,8 @@ class AdminUserTile extends StatelessWidget {
   }
 }
 
-class _MetaPill extends StatelessWidget {
-  const _MetaPill({required this.icon, required this.label});
+class _ListingPill extends StatelessWidget {
+  const _ListingPill({required this.icon, required this.label});
 
   final IconData icon;
   final String label;
@@ -119,7 +138,7 @@ class _MetaPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.66),
+        color: Colors.white.withValues(alpha: 0.68),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
@@ -136,5 +155,16 @@ class _MetaPill extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+Color _statusColor(String status) {
+  switch (status) {
+    case 'claimed':
+      return AppTheme.sand;
+    case 'completed':
+      return AppTheme.sage;
+    default:
+      return AppTheme.sage.withValues(alpha: 0.85);
   }
 }

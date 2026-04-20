@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../models/user_model.dart';
 import '../../services/user_service.dart';
+import '../common/empty_state_card.dart';
 import 'admin_user_tile.dart';
 
 class AdminUserList extends StatelessWidget {
@@ -26,18 +27,26 @@ class AdminUserList extends StatelessWidget {
         }
 
         if (snapshot.hasError) {
-          return const Center(child: Text('Failed to load users.'));
+          return const EmptyStateCard(
+            icon: Icons.person_off_outlined,
+            title: 'Users unavailable',
+            message: 'Failed to load users.',
+          );
         }
 
         final users = snapshot.data ?? [];
         if (users.isEmpty) {
-          return const Center(child: Text('No registered users yet'));
+          return const EmptyStateCard(
+            icon: Icons.groups_outlined,
+            title: 'No users yet',
+            message: 'No registered users yet.',
+          );
         }
 
         return ListView.separated(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.only(bottom: 12),
           itemCount: users.length,
-          separatorBuilder: (_, _) => const SizedBox(height: 8),
+          separatorBuilder: (_, _) => const SizedBox(height: 12),
           itemBuilder: (context, index) {
             final user = users[index];
             return AdminUserTile(

@@ -34,8 +34,15 @@ class UserService {
     required String name,
     required String email,
     String role = 'user',
+    required String userType,
   }) async {
-    final user = UserModel(uid: uid, name: name, email: email, role: role);
+    final user = UserModel(
+      uid: uid,
+      name: name,
+      email: email,
+      role: role,
+      userType: userType,
+    );
     await _usersCollection.doc(uid).set(user.toMap());
   }
 
@@ -43,8 +50,13 @@ class UserService {
     required String uid,
     required String name,
     required String role,
+    required String userType,
   }) async {
-    await _usersCollection.doc(uid).update({'name': name, 'role': role});
+    await _usersCollection.doc(uid).update({
+      'name': name,
+      'role': role,
+      'userType': userType,
+    });
   }
 
   Future<void> deleteUser(String uid) async {

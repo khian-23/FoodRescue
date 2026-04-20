@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../models/user_model.dart';
-import '../screens/admin_dashboard.dart';
-import '../screens/login_screen.dart';
-import '../screens/register_screen.dart';
-import '../screens/user_dashboard.dart';
+import '../screens/admin/admin_dashboard.dart';
+import '../screens/login/login_screen.dart';
+import '../screens/register/register_screen.dart';
+import '../screens/user/user_dashboard.dart';
 
 class AppRoutes {
   static void goToLogin(BuildContext context) {

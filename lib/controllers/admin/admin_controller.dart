@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../models/user_model.dart';
-import '../services/auth_service.dart';
-import '../services/user_service.dart';
+import '../../models/user_model.dart';
+import '../../services/auth_service.dart';
+import '../../services/user_service.dart';
 
 class AdminController {
   AdminController({
@@ -30,8 +30,14 @@ class AdminController {
     required String uid,
     required String name,
     required String role,
+    required String userType,
   }) {
-    return userService.updateUser(uid: uid, name: name, role: role);
+    return userService.updateUser(
+      uid: uid,
+      name: name,
+      role: role,
+      userType: userType,
+    );
   }
 
   Future<void> deleteUser(String uid) {
@@ -42,6 +48,7 @@ class AdminController {
     final formKey = GlobalKey<FormState>();
     final nameController = TextEditingController(text: user.name);
     String selectedRole = user.role;
+    String selectedUserType = user.userType;
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -75,6 +82,18 @@ class AdminController {
                     selectedRole = value ?? 'user';
                   },
                 ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  initialValue: selectedUserType,
+                  decoration: const InputDecoration(labelText: 'User type'),
+                  items: const [
+                    DropdownMenuItem(value: 'donor', child: Text('donor')),
+                    DropdownMenuItem(value: 'rescuer', child: Text('rescuer')),
+                  ],
+                  onChanged: (value) {
+                    selectedUserType = value ?? 'donor';
+                  },
+                ),
               ],
             ),
           ),
@@ -105,6 +124,7 @@ class AdminController {
       uid: user.uid,
       name: nameController.text.trim(),
       role: selectedRole,
+      userType: selectedUserType,
     );
     return true;
   }

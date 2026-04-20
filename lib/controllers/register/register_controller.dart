@@ -1,4 +1,4 @@
-import '../services/auth_service.dart';
+import '../../services/auth_service.dart';
 
 class RegisterController {
   RegisterController({AuthService? authService})
@@ -10,11 +10,13 @@ class RegisterController {
     required String name,
     required String email,
     required String password,
+    required String userType,
   }) {
     return _authService.register(
       name: name,
       email: email,
       password: password,
+      userType: userType,
     );
   }
 }
