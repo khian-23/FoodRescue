@@ -29,9 +29,7 @@ class PasswordFormField extends StatelessWidget {
         border: const OutlineInputBorder(),
         suffixIcon: IconButton(
           onPressed: onToggle,
-          icon: Icon(
-            obscureText ? Icons.visibility : Icons.visibility_off,
-          ),
+          icon: Icon(obscureText ? Icons.visibility : Icons.visibility_off),
         ),
       ),
       validator: validator,

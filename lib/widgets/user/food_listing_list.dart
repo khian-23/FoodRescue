@@ -47,6 +47,8 @@ class FoodListingList extends StatelessWidget {
         }
 
         return ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
           padding: const EdgeInsets.only(bottom: 12),
           itemCount: listings.length,
           separatorBuilder: (_, _) => const SizedBox(height: 12),
