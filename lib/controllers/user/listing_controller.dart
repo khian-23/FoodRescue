@@ -6,7 +6,7 @@ import '../../services/food_listing_service.dart';
 
 class ListingController {
   ListingController({FoodListingService? listingService})
-      : listingService = listingService ?? FoodListingService();
+    : listingService = listingService ?? FoodListingService();
 
   final FoodListingService listingService;
 
@@ -57,6 +57,11 @@ class ListingController {
     required FoodListingModel listing,
     required UserModel rescuer,
   }) {
+    try {
+      print(
+        'DEBUG: ListingController.claimListing listingId=${listing.id} rescuerUid=${rescuer.uid} rescuerName=${rescuer.name}',
+      );
+    } catch (_) {}
     return listingService.claimListing(
       listing: listing,
       rescuerUid: rescuer.uid,
@@ -64,7 +69,10 @@ class ListingController {
     );
   }
 
-  Future<bool> confirmDelete(BuildContext context, FoodListingModel listing) async {
+  Future<bool> confirmDelete(
+    BuildContext context,
+    FoodListingModel listing,
+  ) async {
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {

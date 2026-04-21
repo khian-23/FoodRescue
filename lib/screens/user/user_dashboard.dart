@@ -183,6 +183,15 @@ class _UserDashboardState extends State<UserDashboard> {
       return;
     }
 
+    // Debug: log current user and listing being claimed
+    try {
+      // Safe debug printing — avoids null exceptions
+      print(
+        'DEBUG: Claim requested by user=${user.uid} name=${user.name} for listing=${listing.id} title="${listing.title}"',
+      );
+      print('DEBUG: Listing data=${listing.toMap()}');
+    } catch (_) {}
+
     try {
       await _listingController.claimListing(listing: listing, rescuer: user);
       if (!mounted) {
@@ -191,13 +200,13 @@ class _UserDashboardState extends State<UserDashboard> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('You claimed "${listing.title}".')),
       );
-    } catch (_) {
+    } catch (e) {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Failed to claim listing.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to claim listing: ${e.toString()}')),
+      );
     }
   }
 

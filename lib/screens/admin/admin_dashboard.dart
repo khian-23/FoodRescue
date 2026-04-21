@@ -7,7 +7,6 @@ import '../../models/user_model.dart';
 import '../../navigation/app_routes.dart';
 import '../../widgets/admin/admin_listing_list.dart';
 import '../../widgets/admin/admin_user_list.dart';
-import '../../widgets/common/dashboard_stat_card.dart';
 import '../../widgets/common/logout_button.dart';
 import '../../widgets/common/page_background.dart';
 import '../../widgets/common/section_header.dart';
@@ -51,8 +50,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
       }
 
       setState(() {
-        _adminTitle =
-            profile.name.isNotEmpty ? '${profile.name} (Admin)' : 'Admin Dashboard';
+        _adminTitle = profile.name.isNotEmpty
+            ? '${profile.name} (Admin)'
+            : 'Admin Dashboard';
         _isCheckingAccess = false;
       });
     } catch (_) {
@@ -104,9 +104,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to update user.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Failed to update user.')));
     }
   }
 
@@ -126,9 +126,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to delete user.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Failed to delete user.')));
     }
   }
 
@@ -187,9 +187,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(_adminTitle),
-          actions: [
-            DashboardLogoutButton(onPressed: _logout),
-          ],
+          actions: [DashboardLogoutButton(onPressed: _logout)],
           bottom: const TabBar(
             tabs: [
               Tab(text: 'Users'),
@@ -205,39 +203,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Wrap(
-                      spacing: 14,
-                      runSpacing: 14,
-                      children: const [
-                        SizedBox(
-                          width: 180,
-                          height: 132,
-                          child: DashboardStatCard(
-                            label: 'Access Scope',
-                            value: 'ADMIN',
-                            icon: Icons.admin_panel_settings_outlined,
-                          ),
-                        ),
-                        SizedBox(
-                          width: 180,
-                          height: 132,
-                          child: DashboardStatCard(
-                            label: 'User Controls',
-                            value: 'LIVE',
-                            icon: Icons.groups_outlined,
-                          ),
-                        ),
-                        SizedBox(
-                          width: 180,
-                          height: 132,
-                          child: DashboardStatCard(
-                            label: 'Listing Controls',
-                            value: 'REALTIME',
-                            icon: Icons.inventory_2_outlined,
-                          ),
-                        ),
-                      ],
-                    ),
                     const SizedBox(height: 18),
                     const SectionHeader(
                       title: 'User Management',
@@ -257,39 +222,6 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Wrap(
-                      spacing: 14,
-                      runSpacing: 14,
-                      children: const [
-                        SizedBox(
-                          width: 180,
-                          height: 132,
-                          child: DashboardStatCard(
-                            label: 'Feed Visibility',
-                            value: 'ALL',
-                            icon: Icons.public_outlined,
-                          ),
-                        ),
-                        SizedBox(
-                          width: 180,
-                          height: 132,
-                          child: DashboardStatCard(
-                            label: 'Status Control',
-                            value: 'OPEN-CLAIMED',
-                            icon: Icons.tune_outlined,
-                          ),
-                        ),
-                        SizedBox(
-                          width: 180,
-                          height: 132,
-                          child: DashboardStatCard(
-                            label: 'Moderation',
-                            value: 'DELETE',
-                            icon: Icons.delete_sweep_outlined,
-                          ),
-                        ),
-                      ],
-                    ),
                     const SizedBox(height: 18),
                     const SectionHeader(
                       title: 'Food Listings',
